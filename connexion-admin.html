@@ -1,0 +1,59 @@
+<!DOCTYPE html><html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion Administrateur</title>
+  <link rel="stylesheet" href="connexion-agent.css" />
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <img src="icons/prenatalcare.jpg" alt="Logo PrenatalCare" />
+      <span>Connexion Administrateur</span>
+    </div>
+  </header>  <main>
+    <section class="login-container">
+      <h2>Espace Administrateur</h2>
+      <form id="form-connexion-admin">
+        <div class="form-group">
+          <label for="admin-id">Identifiant</label>
+          <input type="text" id="admin-id" name="admin-id" required />
+        </div><div class="form-group">
+      <label for="admin-password">Mot de passe</label>
+      <input type="password" id="admin-password" name="admin-password" required />
+    </div>
+
+    <button type="submit" class="filled">Connexion</button>
+    <p class="link-text"><a href="index.html">Retour à l'accueil</a></p>
+  </form>
+</section>
+
+  </main>  <script>
+    // Créer l'administrateur automatiquement s'il n'existe pas
+    const adminExiste = localStorage.getItem("admin") !== null;
+    if (!adminExiste) {
+      const admin = {
+        id: "0001000",
+        nom: "Alone",
+        password: "admin4579"
+      };
+      localStorage.setItem("admin", JSON.stringify(admin));
+    }
+
+    // Connexion de l'administrateur
+    document.getElementById("form-connexion-admin").addEventListener("submit", function(event) {
+      event.preventDefault();
+
+      const id = document.getElementById("admin-id").value.trim();
+      const password = document.getElementById("admin-password").value;
+      const admin = JSON.parse(localStorage.getItem("admin"));
+
+      if (admin && admin.id === id && admin.password === password) {
+        localStorage.setItem("adminConnecte", JSON.stringify(admin));
+        window.location.href = "admin-dashboard.html";
+      } else {
+        alert("Identifiant ou mot de passe incorrect.");
+      }
+    });
+  </script></body>
+</html>

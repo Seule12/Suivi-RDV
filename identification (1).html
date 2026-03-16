@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <title>Bienvenue</title>
+</head>
+<body class="body">
+  <center>
+    <h1> SUIVI DES RENDEZ-VOUS</h1></br>
+    <p class="p-bienvenue"> Bienvenue sur <strong></strong>, votre plateforme de suivi des rendez-vous.</br></br>Je n'arrive pas à vous reconnaitre. Veuillez s'il vous plait vous identifiez.</br></br></p>
+    <form class="form-bienvenue" id="form-identification">
+      <input id="identifiant" placeholder="Identifiant" type="text" required>
+      <input id="mdp" placeholder="Mot de passe" type="password" required>
+      <button class="identifier-bienvenue" type="submit" id="submit"><strong> S'identifier </strong></button>
+    </form>
+  </center>
+  <script>
+    document.getElementById("form-identification").addEventListener("submit", function(event) {
+  event.preventDefault();
+  let identifiant = document.getElementById("identifiant").value;
+  let motDePasse = document.getElementById("mdp").value;
+
+  // Charger les données des agents
+  const agents = JSON.parse(localStorage.getItem("agents"));
+
+  // Vérifier les informations d'identification
+  const agent = agents.find(agent => agent.id === identifiant && agent.motDePasse === motDePasse);
+  if (agent) {
+    localStorage.setItem("agent-connecte", JSON.stringify(agent));
+    window.location.href = "accueil.html";
+  } else {
+    alert("Identifiant ou mot de passe incorrect !");
+  }
+});
+  </script>
+</body>
+</html>

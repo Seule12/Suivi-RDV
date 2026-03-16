@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" href="style.css"/>
+  <title>Inscription</title>
+</head>
+<body class="body">
+  <center>
+    <h1 class="lolo"> SUIVI DES RENDEZ VOUS </h1>
+    <p class="lolo1">Formulaire d'enregistrement des Agents</p>
+    <hr>
+    <form style="padding: 2px;" id="form-enregistrement">
+      <strong><p class="lolo1">Informations générales</p> </strong>
+      <select id="qualification" onchange="afficherSelectRelais(); copierVersId()">
+        <option value="">Qualification</option>
+        <option value="ASCQ">ASCQ</option>
+        <option value="RC">Relais Communautaire</option>
+        <option value="MD">Medecin</option>
+        <option value="IDE">Infirmier</option>
+        <option value="SFE">Sage Femme</option>
+        <option value="AS">Aide Soignant</option>
+      </select></br></br>
+      <div id="optionsRelaisContainer" style="display: none;">
+        <select id="optionsRelais">
+          <option value="">Village</option>
+          <option value="option1">Sehougbato</option>
+          <option value="option2">Gantitomey</option>
+          <option value="option3">Tohonou</option>
+        </select>
+      </div>
+      <input id="nom" type="text" placeholder="Nom">
+      <input id="prenom" type="text" placeholder="Prénom"></br>
+      <input id="age" type="text" placeholder="Age">
+      <select id="sexe" class="select">
+        <option>Sexe</option>
+        <option>M</option>
+        <option>F</option>
+      </select>
+      <input type="text" id="phone" name="telephone" placeholder="Numéro de téléphone" oninput="copierVersID()">
+      <p>Identification</p>
+      <input type="text" id="id2" name="" placeholder="Qualification" readonly>
+      <input type="text" id="id" name="id" placeholder="Identifiant" readonly></br>
+      <input id="mdp" type="password" placeholder="Mot de passe">
+      <input id="mdp2" type="password" placeholder="Confirmer votre mot de passe">
+      <button style="width: 40%; pading=2px;" type="submit" id="submit">Soumettre</button>
+    </form>
+  </center>
+  <script>
+    function copierVersID() {
+      const telephone = document.getElementById('phone').value;
+      document.getElementById('id').value = telephone;
+    }
+
+    function copierVersId() {
+      const qualification = document.getElementById('qualification').value;
+      document.getElementById('id2').value = qualification;
+    }
+
+    function afficherSelectRelais() {
+      const qualificationSelect = document.getElementById('qualification');
+      const relaisContainer = document.getElementById('optionsRelaisContainer');
+      if (qualificationSelect.value === 'RC') {
+        relaisContainer.style.display = 'block';
+      } else {
+        relaisContainer.style.display = 'none';
+        document.getElementById('optionsRelais').selectedIndex = 0;
+      }
+    }
+
+document.getElementById("form-enregistrement").addEventListener("submit", function(event) {
+  event.preventDefault();
+  let nom = document.getElementById("nom").value;
+  let prenom = document.getElementById("prenom").value;
+  let qualification = document.getElementById("qualification").value;
+  let motDePasse = document.getElementById("mdp").value;
+  let motDePasse2 = document.getElementById("mdp2").value;
+  let id = document.getElementById("id").value;
+
+  if (motDePasse !== motDePasse2) {
+    alert("Les mots de passe ne correspondent pas !");
+    return;
+  }
+
+  // Charger les données des agents
+  if (!localStorage.getItem("agents")) {
+    localStorage.setItem("agents", JSON.stringify([]));
+  }
+  const agents = JSON.parse(localStorage.getItem("agents"));
+
+  // Ajouter les données de l'agent
+  agents.push({ nom, prenom, qualification, motDePasse, id });
+
+  // Enregistrer les données dans le stockage local
+  localStorage.setItem("agents", JSON.stringify(agents));
+
+  alert("Agent enregistré avec succès !");
+  window.location.href = "identification.html";
+});
+  
+</script>
+</body>
+</html>

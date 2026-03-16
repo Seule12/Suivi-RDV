@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Tableau de bord</title>
+  <link rel="stylesheet" href="admin-dashboard.css" />
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    .logout {
+      float: right;
+    }
+    #searchInput {
+      margin-top: 10px;
+      padding: 8px;
+      width: 100%;
+    }
+    .stats {
+      margin-top: 30px;
+      background: #f9f9f9;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <h1>Tableau de bord Administrateur</h1>
+      <button class="logout" onclick="deconnexion()">Déconnexion</button>
+    </div>
+  </header>  <main>
+    <input type="text" id="searchInput" placeholder="Rechercher un agent..." />
+    <table id="agentsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Spécialité</th>
+          <th>Centre de santé</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table><section class="stats" id="stats"></section>
+
+  </main>  <script>
+    function chargerAgents() {
+      const agents = JSON.parse(localStorage.getItem("agents") || "[]");
+      const tbody = document.querySelector("#agentsTable tbody");
+      tbody.innerHTML = "";
+
+      const stats = {
+        total: 0,
+        parSpecialite: {},
+        parCentre: {}
+      };
+
+      agents.forEach(agent => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${agent.id || "N/A"}</td>
+          <td>${agent.nom}</td>
+          <td>${agent.specialite}</td>
+          <td>${agent.hopital}</td>
+          <td>${agent.email}</td>
+          <td>${agent.telephone}</td>
+        `;
+        tbody.appendChild(tr);
+
+        stats.total++;
+
+        stats.parSpecialite[agent.specialite] = (stats.parSpecialite[agent.specialite] || 0) + 1;
+        stats.parCentre[agent.hopital] = (stats.parCentre[agent.hopital] || 0) + 1;
+      });
+
+      afficherStats(stats);
+    }
+
+    function afficherStats(stats) {
+      const statDiv = document.getElementById("stats");
+      let html = `<h3>Statistiques</h3>`;
+      html += `<p><strong>Total d'agents :</strong> ${stats.total}</p>`;
+
+      html += `<h4>Par spécialité :</h4><ul>`;
+      for (let key in stats.parSpecialite) {
+        html += `<li>${key} : ${stats.parSpecialite[key]}</li>`;
+      }
+      html += `</ul>`;
+
+      html += `<h4>Par centre de santé :</h4><ul>`;
+      for (let key in stats.parCentre) {
+        html += `<li>${key} : ${stats.parCentre[key]}</li>`;
+      }
+      html += `</ul>`;
+
+      statDiv.innerHTML = html;
+    }
+
+    function filtrerAgents() {
+      const filtre = document.getElementById("searchInput").value.toLowerCase();
+      const lignes = document.querySelectorAll("#agentsTable tbody tr");
+
+      lignes.forEach(ligne => {
+        const texte = ligne.textContent.toLowerCase();
+        ligne.style.display = texte.includes(filtre) ? "" : "none";
+      });
+    }
+
+    function deconnexion() {
+      localStorage.removeItem("adminConnecte");
+      window.location.href = "connexion-admin.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const admin = JSON.parse(localStorage.getItem("adminConnecte"));
+      if (!admin || admin.id !== "0001000") {
+        alert("Accès non autorisé.");
+        window.location.href = "connexion-admin.html";
+        return;
+      }
+      chargerAgents();
+      document.getElementById("searchInput").addEventListener("input", filtrerAgents);
+    });
+  </script></body>
+</html>

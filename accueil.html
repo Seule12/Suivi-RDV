@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="icons/femmedevantcalendrier.png">
+  <link rel="stylesheet" type="text/css" href="styles/styles.css">
+  <title>Suivi des rendez-vous</title>
+  <style>
+
+  input, #searchInput {
+      width: 50%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-family: Bookman old style;
+      font-size: 14px;
+    }
+  
+  #searchInput {
+      text-align: center;
+      font-family: Bookman old style;
+      font-size: 14px;
+    }
+  
+    .upcoming table {
+      width: 100%;
+      background-color: white;
+      border-collapse: collapse;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .upcoming th, .upcoming td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+    .upcoming th {
+      background-color: #e6efbb;
+    }
+  
+  .voir-btn {
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1001;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      width: 90%;
+      max-width: 400px;
+      border-radius: 10px;
+    }
+    .modal-content input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .modal-content button {
+      background-color: #3f51b5;
+      border: none;
+      padding: 10px;
+      color: white;
+      width: 100%;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+    .close-btn {
+      text-align: right;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="main">
+    <div class="top-bar">
+      <img src="icons/femmedevantcalendrier.png" alt="Logo" style="width: 50px; height: 50px;">
+      <h1 style="flex-grow: 1; font-size: 30px">Suivi des rendez-vous</h1>
+      <a href="#"><img src="icons/alert.png" alt="Alerte" style="width: 20px;"></a>
+      <a href="profilagent.html"><img src="icons/user.png" alt="Profil" style="width: 50px;"></a>
+      <p><strong id="nom-agent"></strong></p>
+    </div>
+    
+    <header>
+      <a class="nav-item" href="accueil.html">Accueil</a>
+      <a class="nav-item" href="nouvelle.html">Ajouter une femme</a>
+      <a class="nav-item" href="trouver.html">Trouver une femme</a>
+      <a class="nav-item" href="tableaudebord.html">Tableau de bord</a>
+    </header>
+  </div>  
+<hr>
+    <center>
+      <h3 id="message-bienvenue"></h3>
+      <input type="text" id="searchInput" placeholder="Rechercher par nom, village,..."><br><br>
+    </center>
+    <section class="upcoming">
+      <table id="table">
+        <thead>
+          <tr>
+            <th>N°</th>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Village</th>
+            <th>Téléphone</th>
+            <th>Tel conjoint</th>
+            <th>Date RDV</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </div>
+
+  <!-- Boutons flottants -->
+    <button class="floating">
+    <a href="accueil.html"><img src="icons/house.png" alt="Accueil" style="width: 20px;"></a>
+  </button>
+    <button class="floating-btn" onclick="ouvrirFormulaire()">
+    <span>+</span>
+  </button>
+    <button class="search">
+    <a href="#"><img src="icons/search.png" alt="Accueil" style="width: 20px;"></a>
+  </button>
+
+
+
+  <!-- Formulaire modal -->
+  <div class="modal" id="formulaireModal">
+    <div class="modal-content">
+      <div class="close-btn" onclick="fermerFormulaire()">x</div>
+      <h3>Ajouter une patiente</h3>
+      <input id="n" type="text" placeholder="N°" readonly>
+      <input id="nom" type="text" placeholder="Nom">
+      <input id="prenom" type="text" placeholder="Prénom">
+      <select id="village">
+        <option>Village</option>
+        <option>Sehougbato</option>
+        <option>Tohonou</option>
+        <option>Gantitomey</option>
+      </select>
+      <input id="phonef" type="text" placeholder="Téléphone">
+      <input id="phoneh" type="text" placeholder="Téléphone conjoint">
+      <input id="daterdv" type="date" placeholder="Date du RDV">
+      <button onclick="ajouterPatiente()">Enregistrer</button>
+    </div>
+  </div>
+
+  <footer>Suivi RDV &copy; 2025</footer>
+<script>
+  const patientes = JSON.parse(localStorage.getItem("patientes") || "[]");
+  const today = new Date().toISOString().split("T")[0];
+
+  function afficherPatientes() {
+    const tbody = document.querySelector('#table tbody');
+    tbody.innerHTML = '';
+    const patientesAujourdhui = patientes.filter(p => p.daterdv === today);
+    patientesAujourdhui.forEach((p, index) => {
+      const row = `
+        <tr>
+          <td>${p.n}</td>
+          <td>${p.nom}</td>
+          <td>${p.prenom}</td>
+          <td>${p.village}</td>
+          <td>${p.phonef}</td>
+          <td>${p.phoneh}</td>
+          <td>${p.daterdv}</td>
+          <td><button class="voir-btn" onclick="voirProfil(${getIndex(p)})">Voir</button></td>
+        </tr>`;
+      tbody.innerHTML += row;
+    });
+  }
+
+  function getIndex(p) {
+    return patientes.findIndex((patiente) => patiente.n === p.n && patiente.nom === p.nom && patiente.prenom === p.prenom);
+  }
+
+  function voirProfil(index) {
+    const patiente = patientes[index];
+    localStorage.setItem('patiente-selectionnee', JSON.stringify(patiente));
+    window.location.href = "profil-patiente.html";
+  }
+
+  function ajouterPatiente() {
+    const n = document.getElementById('n').value;
+    const nom = document.getElementById('nom').value;
+    const prenom = document.getElementById('prenom').value;
+    const village = document.getElementById('village').value;
+    const phonef = document.getElementById('phonef').value;
+    const phoneh = document.getElementById('phoneh').value;
+    const daterdv = document.getElementById('daterdv').value;
+    if (n && nom && prenom && village && phonef && phoneh && daterdv) {
+      patientes.push({ n, nom, prenom, village, phonef, phoneh, daterdv });
+      localStorage.setItem('patientes', JSON.stringify(patientes));
+      afficherPatientes();
+      fermerFormulaire();
+    } else {
+      alert("Veuillez remplir tous les champs !");
+    }
+  }
+
+  function ouvrirFormulaire() {
+    document.getElementById("formulaireModal").style.display = "flex";
+    const numeroAuto = (patientes.length + 1).toString().padStart(3, '0');
+    document.getElementById("n").value = numeroAuto;
+  }
+
+  function fermerFormulaire() {
+    document.getElementById("formulaireModal").style.display = "none";
+    document.querySelectorAll('.modal-content input, select').forEach(el => el.value = '');
+  }
+
+  const agentConnecte = JSON.parse(localStorage.getItem("agent-connecte"));
+  if (agentConnecte) {
+    let nomComplet = `${agentConnecte.qualification} ${agentConnecte.prenom} ${agentConnecte.nom}`;
+    document.getElementById("nom-agent").textContent = nomComplet;
+    const nbRDVAujourdhui = patientes.filter(p => p.daterdv === today).length;
+    document.getElementById("message-bienvenue").textContent = `Bienvenue ${nomComplet}. Les RDV du jour : ${nbRDVAujourdhui}`;
+  } else {
+    window.location.href = "#";
+  }
+
+  afficherPatientes();
+</script>
+</body>
+</html>
